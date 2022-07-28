@@ -19,9 +19,9 @@ then
         cpmv=mv
     fi
     printf "Copying msleep to $pdir... "
-    $cpmv msleep $pdir && echo "done"
-    printf "Making msleep executable... "
-    chmod +x $pdir/msleep && echo "done"
+    $cpmv msleep $pdir && echo "done" && \
+    printf "Making msleep executable... " && \
+    chmod +x $pdir/msleep && echo "done" && \
     echo "Installed"
 elif [[ $1 == "uninstall" ]]
 then
@@ -32,7 +32,7 @@ then
         then
             cp $pdir/msleep $PWD
         fi
-        rm $pdir/msleep && echo "done"
+        rm $pdir/msleep && echo "done" && \
         echo "Uninstalled"
     else
         echo "msleep is not installed"
