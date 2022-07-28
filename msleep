@@ -1,0 +1,153 @@
+#!/usr/bin/bash
+function is_number {
+    $(echo "$1" | awk '{if ($1+0 == $1) print "true"; else print "false"}')
+}
+function get_os() {
+    for i in $(uname -a)
+    do
+        os=$i
+    done
+    echo $i
+}
+
+os=$(get_os)
+argc=0
+echoc=false
+help=false
+minutes=false
+hours=false
+can_play=false
+plural=true
+seconds=true
+warns=true
+phrase="Time out in "
+measure="second"
+set_time=0
+
+for i in $*
+do
+	if [[ "$i" == "--help" ]]
+	then
+		help=true
+	elif [[ "$i" == "--minute" ]]
+	then
+		minutes=true;hours=false;seconds=false
+		measure="minute"
+	elif [[ "$i" == "--hour" ]]
+	then
+		minutes=false;hours=true;seconds=false
+		measure="hour"
+	elif [[ "$i" == "--second" ]]
+	then
+		minutes=false;hours=false;seconds=true
+		measure="second"
+	elif [[ "$i" == "--echo" ]]
+	then
+		echoc=true
+	elif [[ "$i" == "--nowarn" ]]
+	then
+		warns=false
+	elif is_number $i
+	then
+		if [[ $i -eq 1 ]]
+		then
+			plural=false
+		fi
+		set_time=$i
+	else
+		if [[ -e $i ]]
+		then
+			sound=$i
+		fi
+	fi
+	argc=$((argc+1))
+done
+
+
+if $plural
+then
+	if [[ $measure == "second" ]]
+	then
+		measure="seconds"
+	elif [[ $measure == "hour" ]]
+	then
+		measure="hours"
+	else
+		measure="minutes"
+	fi
+fi
+
+
+if [[ -n $sound ]] && ! [[ -e $sound ]] && $warns
+then
+	
+	echo "Warning! The sound file $i not found"
+fi
+
+if [[ $argc -ne 0 ]] && ! [[ -n $sound ]] && [[ $set_time == 0 ]] && $warns
+then
+	echo "Warning! You cannot set 0 $measure"
+fi
+
+
+if $echoc
+then
+	echo "$phrase $set_time $measure"
+fi
+
+
+if [[ $argc == 0 ]] || $help
+then
+	echo 'Simple terminal based timer'
+	echo 'Usage:'
+	echo '--help     Show this message'
+	echo '--minute   In minutes'
+	echo '--hour     In hours'
+	echo '--second   In seconds'
+	echo '--echo     Enable notes'
+	echo '--nowarn   Disable warnings'
+	echo 'Examples:'
+	echo 'msleep 1 ~/sound.mp3 OR msleep 1 --second ~/sound.mp3'
+	echo 'msleep 4 --minute'
+	exit 0
+elif [[ $measure == "second" ]] || [[ $measure == "seconds" ]]
+then
+	sleep $set_time
+	can_play=true
+elif [[ $measure == "hour" ]] || [[ $measure == "hours" ]]
+then
+	sleep $((set_time*3600))
+	can_play=true
+elif [[ $measure == "minute" ]] || [[ $measure == "minutes" ]]
+then
+	sleep $((set_time*60))
+	can_play=true
+fi
+
+
+if $echoc && $can_play
+then
+	echo "Time is out!"
+fi
+
+
+if [[ -n $sound ]] && $can_play
+then
+	if command -v mpg123
+	then
+		if [[ $os == "Android" ]]
+		then
+			if $warns
+			then
+				echo "Warning! Playing sounds is not supported in Termux"
+			fi
+		else
+			mpg123 $sound
+		fi
+	else
+		if $warns
+		then
+			echo "Warning! The program `mpg123` does not exist"
+		fi
+	fi
+fi
