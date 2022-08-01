@@ -1,17 +1,9 @@
 #!/usr/bin/bash
-function get_os() {
-    for i in $(uname -a)
-    do
-        os=$i
-    done
-    echo $i
-}
-os=$(get_os)
-argc=0
+sound_player=mpg123
 warns=true
 for i in $*
 do
-	if [[ $i == "--help" ]] && [[ $argc -eq 0 ]] || [[ $i == "-h" ]] && [[ $argc -eq 0 ]]
+	if [[ $i == "--help" ]] || [[ $i == "-h" ]]
 	then
 		echo 'Simple terminal based timer'
 		echo 'Usage:'
@@ -82,25 +74,9 @@ do
 		sleep $time_of
 		if [[ -n $sound ]]
 		then
-			if [[ $os == "Android" ]]
-			then
-				if $warns
-				then
-					echo "Playing sounds is not supported on Android"
-				fi
-			else
-				if command -v mpg123
-				then
-					mpg123 $sound
-				else
-					if $warns
-					then
-						echo "The program 'mpg123' not found. Install it first"
-					fi
-				fi
-			fi
+			$sound_player $sound
 		fi
 		break
 	fi
-	argc=$((argc+1))
 done
+
