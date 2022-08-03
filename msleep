@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 sound_player=mpg123
-warns=true
 for i in $*
 do
 	if [[ $i == "--help" ]] || [[ $i == "-h" ]]
@@ -8,15 +7,11 @@ do
 		echo 'Simple terminal based timer'
 		echo 'Usage:'
 		echo '--help   -h      Show this message'
-		echo '--nowarn -n      Disable warnings'
 		echo 'Examples:'
-		echo 'msleep ~/sound.mp3 1:1:30  # 1 hour,1 minute,30 seconds,play ~/sound.mp3'
-		echo 'msleep -n 2:45             # 2 minutes,45 seconds,disable warnings'
-		echo 'msleep -n sound.mp3 5      # 5 seconds,play sound.mp3,disable warnings'
+		echo 'msleep ~/sound.mp3 1:1:30  # 1 hour, 1 minute, 30 seconds, play ~/sound.mp3'
+		echo 'msleep 2:45             # 2 minutes, 45 seconds'
+		echo 'msleep sound.mp3 5      # 5 seconds, play sound.mp3'
 		break
-	elif [[ $i == "--nowarn" ]] || [[ $i == "-n" ]]
-	then
-		warns=false
 	elif [[ -e $i ]] || [[ -e $PWD/$i ]]
 	then
 		if [[ -e $i ]]
