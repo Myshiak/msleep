@@ -1,16 +1,23 @@
 #!/usr/bin/bash
 sound_player=mpg123
+function usage() {
+	echo 'Simple terminal based timer'
+	echo 'Usage:'
+	echo '--help   -h      Show this message'
+	echo 'Examples:'
+	echo 'msleep ~/sound.mp3 1:1:30  # 1 hour, 1 minute, 30 seconds, play ~/sound.mp3'
+	echo 'msleep 2:45             # 2 minutes, 45 seconds'
+	echo 'msleep sound.mp3 5      # 5 seconds, play sound.mp3'
+}
+if ! [[ -n $1 ]]
+then
+	usage
+fi
 for i in $*
 do
 	if [[ $i == "--help" ]] || [[ $i == "-h" ]]
 	then
-		echo 'Simple terminal based timer'
-		echo 'Usage:'
-		echo '--help   -h      Show this message'
-		echo 'Examples:'
-		echo 'msleep ~/sound.mp3 1:1:30  # 1 hour, 1 minute, 30 seconds, play ~/sound.mp3'
-		echo 'msleep 2:45             # 2 minutes, 45 seconds'
-		echo 'msleep sound.mp3 5      # 5 seconds, play sound.mp3'
+		usage
 		break
 	elif [[ -e $i ]] || [[ -e $PWD/$i ]]
 	then
