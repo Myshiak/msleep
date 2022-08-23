@@ -1,13 +1,14 @@
 #!/usr/bin/bash
 sound_player=mpg123 # config
 notify=false
-notify_isnt_set=true # Do not change this variable
+notify_isnt_set=true # Do not change this variables
+$notify && first_notify=true || first_notify=false
 function usage() {
 	echo 'Simple terminal based timer written in Bash'
 	echo 'Usage:'
 	echo '   --help    -h    Show this message'
 	echo '   --version -v    Show version'; echo
-	if $notify
+	if $first_notify
 	then
 		echo '   --notify  -n    Disable notification'
 	else
@@ -15,13 +16,15 @@ function usage() {
 	fi
 	echo; echo 'Examples:'
 	echo ' msleep ~/sound.mp3 1:1:30  # 1 hour,1 minute,30 seconds,play ~/sound.mp3'
-	echo ' msleep -n 2:45             # 2 minutes,45 seconds,send notification'
+	if $first_notify
+	then
+		echo ' msleep -n 2:45             # 2 minutes,45 seconds,disable notification'
+	else
+		echo ' msleep -n 2:45             # 2 minutes,45 seconds,enable notification'
+	fi
 	echo ' msleep sound.mp3 5         # 5 seconds,play sound.mp3'
 }
-if [[ -z $1 ]]
-then
-	usage
-fi
+[[ -z $1 ]] && usage
 for i in $*
 do
 	if [[ $i == "--help" ]] || [[ $i == "-h" ]]
@@ -30,25 +33,15 @@ do
 		break
 	elif [[ $i == "--version" ]] || [[ $i == "-v" ]]
 	then
-		echo "1.2.0"
+		echo "1.2.1"
 		break
 	elif [[ $i == "--notify" ]] && $notify_isnt_set || [[ $i == "-n" ]] && $notify_isnt_set
 	then
-		if $notify
-		then
-			notify=false
-		else
-			notify=true
-		fi
+		$notify && notify=false || notify=true
 		notify_isnt_set=false
 	elif [[ -e $i ]] || [[ -e $PWD/$i ]]
 	then
-		if [[ -e $i ]]
-		then
-			sound=$i
-		else
-			sound="$PWD/$i"
-		fi
+		[[ -e $i ]] && sound=$i || sound="$PWD/$i"
 	elif [[ $i =~ [0-9]+(:[0-9]+(:[0-9]+)?)? ]]
 	then
 		time_of=0
@@ -70,10 +63,7 @@ do
 				index=0
 				for j in $i
 				do
-					if [[ $index -eq 0 ]]
-					then
-						j=$((j*60))
-					fi
+					[[ $index -eq 0 ]] && j=$((j*60))
 					time_of=$((time_of+j))
 					index=$((index+1))
 				done
@@ -82,13 +72,7 @@ do
 				index=0
 				for j in $i
 				do
-					if [[ $index -eq 0 ]]
-					then
-						j=$((j*3600))
-					elif [[ $index -eq 1 ]]
-					then
-						j=$((j*60))
-					fi
+					[[ $index -eq 0 ]] && j=$((j*3600)) || [[ $index -eq 1 ]] && j=$((j*60))
 					time_of=$((time_of+j))
 					index=$((index+1))
 				done
@@ -105,10 +89,7 @@ do
 				echo "Msleep: Time $i is out"
 			fi
 		fi
-		if [[ -n $sound ]]
-		then
-			$sound_player $sound
-		fi
+		[[ -n $sound ]] && $sound_player $sound
 		break
 	fi
 done
